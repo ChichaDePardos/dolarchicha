@@ -188,6 +188,12 @@ function renderChart(data, maSeries, projection) {
 
   if (chart) chart.destroy();
 
+  if (typeof Chart === 'undefined') {
+    drawBasicChart(ctx, actualValues, projCenter, projLower, projUpper);
+    setStatus('Datos cargados. La librería interactiva del gráfico no estuvo disponible en esta sesión.', 'warning');
+    return;
+  }
+
   chart = new Chart(ctx, {
     type: 'line',
     data: {
@@ -264,6 +270,47 @@ function renderChart(data, maSeries, projection) {
       },
     },
   });
+}
+
+function drawBasicChart(canvas, actual, projectionCenter, projectionLower, projectionUpper) {
+  const context = canvas.getContext('2d');
+  if (!context) return;
+  const width = canvas.clientWidth || 900;
+  const height = canvas.clientHeight || 360;
+  canvas.width = width;
+  canvas.height = height;
+  context.clearRect(0, 0, width, height);
+
+  const allValues = [...actual, ...projectionCenter, ...projectionLower, ...projectionUpper].filter((v) => v !== null);
+  if (!allValues.length) return;
+  const min = Math.min(...allValues);
+  const max = Math.max(...allValues);
+  const scaleY = (value) => height - 25 - ((value - min) / (max - min || 1)) * (height - 50);
+  const scaleX = (index, total) => 30 + (index / (total - 1 || 1)) * (width - 60);
+
+  const drawLine = (series, color, dash = []) => {
+    context.beginPath();
+    context.strokeStyle = color;
+    context.lineWidth = 2;
+    context.setLineDash(dash);
+    let started = false;
+    series.forEach((value, index) => {
+      if (value === null) return;
+      const x = scaleX(index, series.length);
+      const y = scaleY(value);
+      if (!started) {
+        context.moveTo(x, y);
+        started = true;
+      } else {
+        context.lineTo(x, y);
+      }
+    });
+    if (started) context.stroke();
+    context.setLineDash([]);
+  };
+
+  drawLine(actual, '#2563eb');
+  drawLine(projectionCenter, '#a855f7', [4, 4]);
 }
 
 function renderBacktest(metrics) {
