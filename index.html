@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DolarChicha | Histórico USD/PEN</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="container">
+      <h1>DolarChicha</h1>
+      <p class="subtitle">Histórico mensual USD/PEN — Serie BCRP PN01234PM</p>
+      <div class="alerts" aria-label="Avisos importantes">
+        <p><strong>Proyección estadística referencial.</strong> No es asesoría financiera.</p>
+        <p>El tipo de cambio está sujeto a factores económicos externos y alta incertidumbre.</p>
+      </div>
+    </header>
+
+    <main class="container">
+      <section class="panel controls" aria-label="Filtros">
+        <div>
+          <label for="period-filter">Período</label>
+          <select id="period-filter">
+            <option value="all">Todo el histórico</option>
+            <option value="20y">Últimos 20 años</option>
+            <option value="10y">Últimos 10 años</option>
+            <option value="5y" selected>Últimos 5 años</option>
+            <option value="custom">Rango personalizado</option>
+          </select>
+        </div>
+
+        <div id="custom-range" hidden>
+          <label for="start-month">Desde</label>
+          <input id="start-month" type="month" />
+          <label for="end-month">Hasta</label>
+          <input id="end-month" type="month" />
+        </div>
+
+        <div>
+          <label for="ma-window">Media móvil</label>
+          <select id="ma-window">
+            <option value="3">3 meses</option>
+            <option value="6">6 meses</option>
+            <option value="12" selected>12 meses</option>
+          </select>
+        </div>
+
+        <button id="download-csv" type="button">Descargar CSV visible</button>
+      </section>
+
+      <section class="panel" aria-live="polite">
+        <p id="status" data-tone="loading">Cargando…</p>
+        <p>Fuente activa: <span id="source-label">-</span></p>
+        <p>Última actualización visible: <span id="updated-at">-</span></p>
+      </section>
+
+      <section class="metrics-grid" aria-label="Resumen estadístico">
+        <article class="metric-card"><h2>Último valor</h2><p id="metric-latest">-</p></article>
+        <article class="metric-card"><h2>Mínimo</h2><p id="metric-min">-</p></article>
+        <article class="metric-card"><h2>Máximo</h2><p id="metric-max">-</p></article>
+        <article class="metric-card"><h2>Promedio</h2><p id="metric-avg">-</p></article>
+        <article class="metric-card"><h2>Variación mensual</h2><p id="metric-change">-</p></article>
+      </section>
+
+      <section class="panel chart-panel">
+        <h2>Serie mensual y proyección a 6 meses</h2>
+        <div class="chart-wrapper">
+          <canvas id="exchange-chart" aria-label="Gráfico histórico de USD PEN" role="img"></canvas>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Backtesting referencial</h2>
+        <p>
+          Validación histórica simple con horizonte de 1, 3 y 6 meses. Los errores (MAE/MAPE)
+          son aproximados y no garantizan desempeño futuro.
+        </p>
+        <table>
+          <thead>
+            <tr>
+              <th>Horizonte</th>
+              <th>Muestras</th>
+              <th>MAE</th>
+              <th>MAPE</th>
+            </tr>
+          </thead>
+          <tbody id="backtest-body"></tbody>
+        </table>
+      </section>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+    <script type="module" src="./src/app.js"></script>
+  </body>
+</html>
